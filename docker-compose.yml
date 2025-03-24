@@ -1,25 +1,59 @@
 version: '3.8'
 services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      # Enable Let's Encrypt and automatic certificate management
+      - --certificatesresolvers.le.acme.email=bilal.elhoudaigui@gmail.com
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - web
+
   frontend:
+    # image: quranic-corpus-frontend:latest
+    # environment:
+    # - REACT_APP_API_BASE_URL=/api
+    
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        REACT_APP_API_BASE_URL: http://192.168.0.137:6382
-        # REACT_APP_API_BASE_URL: http://api.yourdomain.com:6382
-    ports:
-      - "3000:80"
+          REACT_APP_API_BASE_URL: /api
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`quran.bilalelhoudaigui.com`)"
+      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=le"
     networks:
-      - quranic-network
+      - web
 
   backend:
     image: quranic-corpus-api:latest
     container_name: backend-container
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`quran.bilalelhoudaigui.com`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=le"
+      - "traefik.http.middlewares.backend-strip-prefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=backend-strip-prefix"
     ports:
-      - "6382:6382"
+      - "6382:6382"  # Expose if needed, or keep internal only if accessed via the frontend
     networks:
-      - quranic-network
+      - web
 
 networks:
-  quranic-network:
+  web:
     driver: bridge
