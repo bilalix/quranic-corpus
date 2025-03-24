@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_API_BASE_URL: http://192.168.0.137:6382
+        # REACT_APP_API_BASE_URL: http://api.yourdomain.com:6382
+    ports:
+      - "3000:80"
+    networks:
+      - quranic-network
+
+  backend:
+    image: quranic-corpus-api:latest
+    container_name: backend-container
+    ports:
+      - "6382:6382"
+    networks:
+      - quranic-network
+
+networks:
+  quranic-network:
+    driver: bridge

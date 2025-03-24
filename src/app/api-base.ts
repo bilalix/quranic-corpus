@@ -1,5 +1,7 @@
-export abstract class ApiBase {
-    private readonly baseUrl = 'https://qurancorpus.app/api';
+import { BASE_URL } from './config';
 
-    protected url = (relativePath: string) => this.baseUrl + relativePath;
+export abstract class ApiBase {
+    protected url(path: string): string {
+        return `${BASE_URL}${path}`;
+    }
 }

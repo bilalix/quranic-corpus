@@ -1,0 +1,14 @@
+node_modules
+build
+.dockerignore
+Dockerfile
+README.md
+# package-lock.json
+*.log
+*.env
+*.git
+*.gitignore
+src/**/*.test.js
+src/**/*.test.ts
+src/**/*.test.jsx
+src/**/*.test.tsx
