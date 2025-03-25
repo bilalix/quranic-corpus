@@ -37,8 +37,8 @@ services:
       - "traefik.http.routers.frontend.entrypoints=web,websecure"
       - "traefik.http.routers.frontend.tls.certresolver=le"
       # Middleware to rewrite all unknown paths to /index.html
-      - "traefik.http.middlewares.frontend-spa.replacepath.path=/index.html"
-      - "traefik.http.routers.frontend.middlewares=frontend-spa"
+      # - "traefik.http.middlewares.frontend-spa.replacepath.path=/index.html"
+      # - "traefik.http.routers.frontend.middlewares=frontend-spa"
     networks:
       - web
 
