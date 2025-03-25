@@ -34,8 +34,12 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`quran.bilalelhoudaigui.com`)"
-      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=le"
+      # Middleware to rewrite all unknown paths to /index.html
+      # Middleware to rewrite all unknown paths to /index.html
+      - "traefik.http.middlewares.frontend-spa.replacepath.path=/index.html"
+      - "traefik.http.routers.frontend.middlewares=frontend-spa"
     networks:
       - web
 
