@@ -52,5 +52,15 @@ To build and run the application using Docker, follow these steps:
 
 You can then access the application at `http://localhost:3000`.
 
+### All-In-One Using Docker Compose
+
+After building the backend as described in [README_docker.md in the backend repo](https://github.com/bilalix/quranic-corpus-api/blob/dockerize/README_docker.md), run this command:
+
+```
+docker-compose up --build -d
+```
+
+This will build and run the app in the backgroud, to stop it do a `docker-compose down`
+
 ## License
 This project is licensed under the MIT License.
