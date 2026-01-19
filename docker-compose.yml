@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   traefik:
-    image: traefik:v2.9
+    image: traefik:v3.6.7
     command:
       - --providers.docker
       - --providers.docker.exposedbydefault=false
@@ -11,6 +11,9 @@ services:
       - --certificatesresolvers.le.acme.email=bilal.elhoudaigui@gmail.com
       - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      # Redirect HTTP to HTTPS
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
     ports:
       - "80:80"
       - "443:443"
@@ -32,10 +35,16 @@ services:
         REACT_APP_API_BASE_URL: /api
 
     labels:
+      # Enable Traefik for this service
       - "traefik.enable=true"
+      # Route requests to the frontend based on the host
       - "traefik.http.routers.frontend.rule=Host(`quran.bilalelhoudaigui.com`)"
-      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      # Ensure all traffic uses HTTPS
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      # Use Let's Encrypt for TLS certificates
       - "traefik.http.routers.frontend.tls.certresolver=le"
+      # Specify the port on which the frontend container listens      
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
       # Middleware to rewrite all unknown paths to /index.html
       # - "traefik.http.middlewares.frontend-spa.replacepath.path=/index.html"
       # - "traefik.http.routers.frontend.middlewares=frontend-spa"
@@ -52,6 +61,8 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=le"
       - "traefik.http.middlewares.backend-strip-prefix.stripprefix.prefixes=/api"
       - "traefik.http.routers.backend.middlewares=backend-strip-prefix"
+      # Specify the port on which the backend container listens
+      - "traefik.http.services.backend.loadbalancer.server.port=6382"
     ports:
       - "6382:6382"  # Expose if needed, or keep internal only if accessed via the frontend
     networks:
